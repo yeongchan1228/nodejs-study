@@ -1,32 +1,34 @@
 const http = require('http');
 const fs = require('fs');
 const url = require('url');
+const folder = './text';
 
-var app = http.createServer(function(request, response) {
-    var _url = request.url;
-    var queryData = url.parse(_url, true).query;
-    var title = queryData.id;
-    console.log(_url);
-    if(_url == '/') {
-        title = 'Welcome';
-    }
-    if(_url == '/favicon.ico') {
-        response.writeHead(404);
-        response.end();
-        return;
-    }
+const app = http.createServer(function(request, response) {
+    let _url = request.url;
+    let queryData = url.parse(_url, true).query;
+    let pathname = url.parse(_url, true).pathname;
+    let title = queryData.id; 
 
-    if(_url == '/picture') {
-        console.log('picccc');
-        fs.readFile('coding.jpg', function(err, data) {
-            response.writeHead(200);
-            response.end(data);
-        });
-    } else {
+    let filenames = fs.readdirSync(folder);
+
+    if (pathname === "/") {
         response.writeHead(200);
+
+        let list = '';
+        for (let name of filenames) {
+            list += `<li><a href="?id=${name}">${name}</a></li>`;
+        }
+
         fs.readFile(`${__dirname}/text/${title}`, 'utf8', function(err, data) {
-            var content = data;
-            var template = `
+            let content;
+            if (title === undefined) {
+                title = "Welcome";
+                content = "Hello World!";
+            } else {
+                content = data;
+            }
+
+            let template = `
             <!doctype html>
             <html>
                 <head>
@@ -35,11 +37,9 @@ var app = http.createServer(function(request, response) {
                 </head>
                 <body> 
                 <h1><a href="/">WEB</a></h1>
-                <ol>
-                    <li><a href="?id=HTML">HTML</a></li>
-                    <li><a href="?id=CSS">CSS</a></li>
-                    <li><a href="?id=JavaScript">JavaScript</a></li>
-                </ol>
+                <ul>
+                    ${list}
+                </ul>
                 <h2>${title}</h2>
                 <p>
                 ${content}
@@ -49,6 +49,15 @@ var app = http.createServer(function(request, response) {
             `
             response.end(template);
         });
+
+    } else if (pathname === "/picture") {
+        fs.readFile('coding.jpg', function(err, data) {
+            response.writeHead(200);
+            response.end(data);
+        });
+    } else {
+        response.writeHead(404);
+        response.end('Not Found');
     }
 });
 
