@@ -28,28 +28,10 @@ const app = http.createServer(function(request, response) {
                 content = data;
             }
 
-            let template = `
-            <!doctype html>
-            <html>
-                <head>
-                <title>WEB1 - ${title}</title>
-                <meta charset="utf-8">
-                </head>
-                <body> 
-                <h1><a href="/">WEB</a></h1>
-                <ul>
-                    ${list}
-                </ul>
-                <h2>${title}</h2>
-                <p>
-                ${content}
-                </p>
-                </body>
-            </html>
-            `
+            let template = templateHTML(title, content, list);
+
             response.end(template);
         });
-
     } else if (pathname === "/picture") {
         fs.readFile('coding.jpg', function(err, data) {
             response.writeHead(200);
@@ -61,5 +43,26 @@ const app = http.createServer(function(request, response) {
     }
 });
 
+function templateHTML(title, content, list) {
+        return `
+        <!doctype html>
+        <html>
+            <head>
+            <title>WEB1 - ${title}</title>
+            <meta charset="utf-8">
+            </head>
+            <body> 
+            <h1><a href="/">WEB</a></h1>
+            <ul>
+                ${list}
+            </ul>
+            <h2>${title}</h2>
+            <p>
+            ${content}
+            </p>
+            </body>
+        </html>
+        `
+}
 
 app.listen(3000);
