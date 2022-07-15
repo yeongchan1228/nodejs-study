@@ -1,12 +1,12 @@
 const fs = require('fs');
 const http = require('http');
-const { title } = require('process');
 const url = require('url');
+const qs = require('querystring');
 
 const app = http.createServer((req, res) => {
     let _url = req.url;
     let queryData = url.parse(_url, true).query;
-
+    fs.readdir
     if (_url === "/") {
         res.writeHead(200);
 
@@ -23,7 +23,7 @@ const app = http.createServer((req, res) => {
     } else if (_url === "/create") {
         res.writeHead(200);
 
-        let title = "페이지 생성 창";
+        let title = "파일 생성 창";
         let content = `
             <form action = "http://localhost:3000/process" method = post>
             <p><input type = "text", name = "title" placeholder = "title"></p>
@@ -33,8 +33,22 @@ const app = http.createServer((req, res) => {
         `;
         res.end(getTemplateHTML(title, content));
     } else if (_url === "/process") {
-        res.writeHead(200);
-        res.end(_url);
+        let body = '';
+        req.on('data', (data) => {
+            body = body + data;
+        });
+        req.on('end', () => {
+            let post = qs.parse(body);
+            let title = post.title;
+            let content = post.content;
+            fs.writeFile(__dirname + `/file/${title}`, content, 'utf8', (err) => {
+                if (err) throw err;
+
+                res.writeHead(302, { location: `/` });
+                res.end("success");
+                res.redir
+            });
+        });
     } else {
         res.writeHead(404);
         res.end('Not Found!');
